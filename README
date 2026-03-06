@@ -1,0 +1,18 @@
+# ShebaHack
+
+A platform that connects communities with customers who need large quantities of handmade or local products.
+
+Instead of relying on a single producer, the platform allows groups of community members to collaborate and fulfill bulk orders by distributing the workload among multiple contributors.
+
+## Goal
+
+Support community-based production and make it easier for businesses or individuals to place large orders that local communities can fulfill together.
+
+## Project Structure
+
+* **frontend/** – User interface for customers and community members
+* **backend/** – Server logic, APIs, and order management
+
+## Team
+
+ShebaHack Hackathon Team
