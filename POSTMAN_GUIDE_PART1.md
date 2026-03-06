@@ -601,9 +601,8 @@ Authorization: Bearer ADMIN_TOKEN
 - english
 
 ### Payment Methods:
-- telebirr
-- bank_transfer
-- cash
+- mpesa
+
 
 ---
 
