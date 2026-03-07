@@ -30,22 +30,24 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
+    <nav className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold text-primary">EmpowerHer</span>
-            <span className="text-secondary">Market</span>
+            <div className="w-10 h-10 bg-gradient-to-br from-secondary to-primary rounded-lg flex items-center justify-center">
+              <span className="text-white text-xl font-bold">L</span>
+            </div>
+            <span className="text-2xl font-bold text-gray-900">LOGO</span>
           </Link>
 
           <div className="hidden md:flex items-center space-x-8">
             <Link to="/" className={navLinkClass('/')}>{t.home}</Link>
-            <Link to="/marketplace" className={navLinkClass('/marketplace')}>{t.marketplace}</Link>
-            <Link to="/services" className={navLinkClass('/services')}>{t.services}</Link>
+            <Link to="/marketplace" className={navLinkClass('/marketplace')}>Marketplace</Link>
+            <Link to="/services" className={navLinkClass('/services')}>Services</Link>
             
             {/* Show Special Offer only for customers */}
             {user && isCustomer() && (
-              <Link to="/special-offer" className={navLinkClass('/special-offer')}>{t.specialOffer}</Link>
+              <Link to="/special-offer" className={navLinkClass('/special-offer')}>Connect</Link>
             )}
             
             <Link to="/learning" className={navLinkClass('/learning')}>{t.learning}</Link>
@@ -62,7 +64,7 @@ const Navbar = () => {
             
             {/* Show Cart for logged-in customers only */}
             {user && isCustomer() && (
-              <Link to="/cart" className="relative text-text hover:text-primary transition">
+              <Link to="/cart" className="relative text-text hover:text-secondary transition">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
@@ -76,25 +78,34 @@ const Navbar = () => {
             
             {user ? (
               <div className="flex items-center space-x-4">
-                {/*<span className="text-gray-600">Hi, {user.name}</span>*/}
                 <button
                   onClick={handleLogout}
-                  className="bg-secondary text-white px-6 py-2 rounded-lg hover:bg-opacity-90 transition"
+                  className="bg-secondary text-white px-6 py-2 rounded-full hover:bg-pink-dark transition"
                 >
                   {t.logout}
                 </button>
               </div>
             ) : (
               <>
-                <Link to="/login" className="text-text hover:text-primary transition">{t.login}</Link>
-                <Link to="/signup" className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-opacity-90 transition">{t.signup}</Link>
+                <Link 
+                  to="/login" 
+                  className="text-gray-700 hover:text-secondary transition border border-gray-300 px-6 py-2 rounded-full"
+                >
+                  Sign In
+                </Link>
+                <Link 
+                  to="/signup" 
+                  className="bg-secondary text-white px-6 py-2 rounded-full hover:bg-pink-dark transition"
+                >
+                  Sign Up
+                </Link>
               </>
             )}
             
             <select 
               value={language} 
               onChange={(e) => setLanguage(e.target.value)}
-              className="border border-gray-300 rounded px-2 py-1 text-sm"
+              className="border border-gray-300 rounded-full px-3 py-2 text-sm"
             >
               <option value="en">English</option>
               <option value="am">አማርኛ</option>
@@ -136,7 +147,7 @@ const Navbar = () => {
             )}
             
             {user && isCustomer() && (
-              <Link to="/cart" onClick={() => setMobileMenuOpen(false)} className="block text-text hover:text-primary">Cart ({getCartCount()})</Link>
+              <Link to="/cart" onClick={() => setMobileMenuOpen(false)} className="block text-text hover:text-secondary">Cart ({getCartCount()})</Link>
             )}
             
             {user ? (
@@ -144,22 +155,22 @@ const Navbar = () => {
                 <div className="text-gray-600 py-2">Hi, {user.name}</div>
                 <button
                   onClick={handleLogout}
-                  className="block w-full text-left bg-secondary text-white px-6 py-2 rounded-lg"
+                  className="block w-full text-left bg-secondary text-white px-6 py-2 rounded-full"
                 >
                   {t.logout}
                 </button>
               </>
             ) : (
               <>
-                <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="block text-text hover:text-primary">{t.login}</Link>
-                <Link to="/signup" onClick={() => setMobileMenuOpen(false)} className="block bg-primary text-white px-6 py-2 rounded-lg text-center">{t.signup}</Link>
+                <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="block text-text hover:text-secondary">{t.login}</Link>
+                <Link to="/signup" onClick={() => setMobileMenuOpen(false)} className="block bg-secondary text-white px-6 py-2 rounded-full text-center">{t.signup}</Link>
               </>
             )}
             
             <select 
               value={language} 
               onChange={(e) => setLanguage(e.target.value)}
-              className="w-full border border-gray-300 rounded px-2 py-2"
+              className="w-full border border-gray-300 rounded-full px-3 py-2"
             >
               <option value="en">English</option>
               <option value="am">አማርኛ</option>

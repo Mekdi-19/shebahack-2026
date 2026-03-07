@@ -7,10 +7,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#CFAF2F',
-        secondary: '#E63946',
+        primary: '#F06292',
+        secondary: '#E91E63',
         background: '#FFFFFF',
         text: '#333333',
+        'pink-light': '#FCE4EC',
+        'pink-medium': '#F8BBD0',
+        'pink-dark': '#D81B60',
+        'pink-darker': '#C2185B',
+        'pink-bold': '#AD1457',
       },
     },
   },
