@@ -200,7 +200,7 @@ Content-Type: application/json
 
 ### 2.2 Get All Products
 **Method:** GET  
-**URL:** `http://localhost:5000/api/products`  
+**URL:** `http://localhost:5001/api/products`  
 **Expected Response (200):**
 ```json
 [

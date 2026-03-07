@@ -16,12 +16,14 @@ import Cart from './pages/Cart';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminApprovals from './pages/AdminApprovals';
 import Checkout from './pages/Checkout';
 import Booking from './pages/Booking';
 import MyVentures from './pages/MyVentures';
 import ProductDetails from './pages/ProductDetails';
 import VentureOpportunities from './pages/VentureOpportunities';
 import VendorProfile from './pages/VendorProfile';
+import VendorProducts from './pages/VendorProducts';
 import TeamWorkspace from './pages/TeamWorkspace';
 import VentureWorkspace from './pages/VentureWorkspace';
 
@@ -47,10 +49,12 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
                     <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/admin/approvals" element={<AdminApprovals />} />
                     <Route path="/checkout" element={<Checkout />} />
                     <Route path="/booking" element={<Booking />} />
                     <Route path="/my-ventures" element={<MyVentures />} />
                     <Route path="/product/:id" element={<ProductDetails />} />
+                    <Route path="/vendor-products" element={<VendorProducts />} />
                     <Route path="/venture-opportunities" element={<VentureOpportunities />} />
                     <Route path="/vendor/:id" element={<VendorProfile />} />
                     <Route path="/team/:id" element={<TeamWorkspace />} />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useVenture } from '../context/VentureContext';
 
@@ -181,9 +181,17 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-text mb-2">Admin Dashboard</h1>
-          <p className="text-gray-600">Manage venture teams and special offer requests</p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-4xl font-bold text-text mb-2">Admin Dashboard</h1>
+            <p className="text-gray-600">Manage venture teams and special offer requests</p>
+          </div>
+          <Link
+            to="/admin/approvals"
+            className="bg-secondary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition font-semibold"
+          >
+            Approval Management
+          </Link>
         </div>
 
         {/* Stats */}

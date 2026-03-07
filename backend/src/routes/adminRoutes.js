@@ -13,6 +13,69 @@ const isAdmin = (req, res, next) => {
   next();
 };
 
+// Get all vendors (with optional filter for pending approval)
+router.get('/vendors', authenticate, isAdmin, async (req, res) => {
+  try {
+    const { status } = req.query;
+    const filter = {};
+    
+    // Filter by role vendor
+    filter.role = 'vendor';
+    
+    // Filter by verification status if provided
+    if (status === 'pending') {
+      filter.isVerified = false;
+    } else if (status === 'approved') {
+      filter.isVerified = true;
+    }
+    
+    const vendors = await User.find(filter).select('-password');
+    res.json(vendors);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get all products (with optional filter for pending approval)
+router.get('/products', authenticate, isAdmin, async (req, res) => {
+  try {
+    const { status } = req.query;
+    const filter = {};
+    
+    // Filter by approval status if provided
+    if (status === 'pending') {
+      filter.isApproved = false;
+    } else if (status === 'approved') {
+      filter.isApproved = true;
+    }
+    
+    const products = await Product.find(filter).populate('vendor', 'name email');
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get all services (with optional filter for pending approval)
+router.get('/services', authenticate, isAdmin, async (req, res) => {
+  try {
+    const { status } = req.query;
+    const filter = {};
+    
+    // Filter by approval status if provided
+    if (status === 'pending') {
+      filter.isApproved = false;
+    } else if (status === 'approved') {
+      filter.isApproved = true;
+    }
+    
+    const services = await Service.find(filter).populate('vendor', 'name email');
+    res.json(services);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Approve vendor
 router.put('/vendors/:id/approve', authenticate, isAdmin, async (req, res) => {
   try {

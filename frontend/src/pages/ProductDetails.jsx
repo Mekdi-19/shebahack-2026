@@ -1,46 +1,40 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import RatingStars from '../components/RatingStars';
 import ReviewCard from '../components/ReviewCard';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const { user, isCustomer } = useAuth(); // Allow any logged-in user including vendors
+  const { user, isCustomer } = useAuth();
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const product = {
-    id: Number(id),
-    name: 'Traditional Coffee Set',
-    price: 850,
-    rating: 4.8,
-    seller: 'Almaz Tesfaye',
-    sellerId: 1,
-    description: 'Handcrafted traditional Ethiopian coffee set including jebena (coffee pot), cups, and serving tray. Perfect for traditional coffee ceremonies. Made with high-quality materials and traditional craftsmanship passed down through generations.',
-    images: [
-      'https://via.placeholder.com/600x400/CFAF2F/FFFFFF?text=Coffee+Set+1',
-      'https://via.placeholder.com/600x400/E63946/FFFFFF?text=Coffee+Set+2',
-      'https://via.placeholder.com/600x400/CFAF2F/FFFFFF?text=Coffee+Set+3'
-    ],
-    inStock: true,
-    category: 'Crafts',
-    specifications: [
-      'Material: Traditional clay and ceramic',
-      'Set includes: 1 Jebena, 6 cups, 1 serving tray',
-      'Handmade by skilled artisans',
-      'Perfect for 6-8 people'
-    ]
-  };
+  // Fetch product from API
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await api.getProductById(id);
+        setProduct(data);
+      } catch (err) {
+        console.error('Failed to fetch product:', err);
+        setError('Failed to load product details. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const reviews = [
-    { id: 1, userName: 'Dawit Kebede', rating: 5, date: '2 weeks ago', comment: 'Beautiful craftsmanship! Exactly as described. The coffee set is perfect for our family gatherings.', userImage: 'https://via.placeholder.com/50' },
-    { id: 2, userName: 'Meron Haile', rating: 4, date: '1 month ago', comment: 'Great quality, fast delivery. Very happy with my purchase!', userImage: 'https://via.placeholder.com/50' },
-    { id: 3, userName: 'Sara Mulugeta', rating: 5, date: '2 months ago', comment: 'Absolutely love it! The traditional design is authentic and beautiful.', userImage: 'https://via.placeholder.com/50' }
-  ];
+    fetchProduct();
+  }, [id]);
 
   const handleAddToCart = () => {
     if (!user) {
@@ -68,6 +62,48 @@ const ProductDetails = () => {
     });
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">⏳</div>
+            <p className="text-gray-500 text-lg">Loading product details...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !product) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">⚠️</div>
+            <p className="text-red-500 text-lg mb-2">{error || 'Product not found'}</p>
+            <button 
+              onClick={() => navigate('/marketplace')} 
+              className="text-primary hover:underline"
+            >
+              Back to Marketplace
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Prepare product data with defaults
+  const productImages = product.images && product.images.length > 0 
+    ? product.images 
+    : ['https://via.placeholder.com/600x400/CFAF2F/FFFFFF?text=No+Image'];
+  
+  const productReviews = product.reviews || [];
+  const productSpecs = product.specifications || [];
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -85,12 +121,12 @@ const ProductDetails = () => {
             {/* Image Gallery */}
             <div>
               <img 
-                src={product.images[selectedImage]} 
+                src={productImages[selectedImage]} 
                 alt={product.name}
                 className="w-full h-96 object-cover rounded-lg mb-4 border-2 border-gray-200"
               />
               <div className="flex gap-2">
-                {product.images.map((img, index) => (
+                {productImages.map((img, index) => (
                   <img 
                     key={index}
                     src={img}
@@ -129,20 +165,24 @@ const ProductDetails = () => {
 
               <div className="mb-6">
                 <h3 className="font-semibold text-lg mb-2">Specifications</h3>
-                <ul className="list-disc list-inside space-y-1 text-gray-700">
-                  {product.specifications.map((spec, index) => (
-                    <li key={index}>{spec}</li>
-                  ))}
-                </ul>
+                {productSpecs.length > 0 ? (
+                  <ul className="list-disc list-inside space-y-1 text-gray-700">
+                    {productSpecs.map((spec, index) => (
+                      <li key={index}>{spec}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-500">No specifications available</p>
+                )}
               </div>
 
               <div className="mb-6">
                 <h3 className="font-semibold text-lg mb-2">Seller</h3>
                 <Link 
-                  to={`/vendor/${product.sellerId}`} 
+                  to={`/vendor/${product.vendor?._id || product.sellerId}`} 
                   className="text-primary hover:underline text-lg font-semibold"
                 >
-                  {product.seller} →
+                  {product.vendor?.name || product.seller} →
                 </Link>
               </div>
 
@@ -199,12 +239,16 @@ const ProductDetails = () => {
 
         {/* Reviews Section */}
         <div className="bg-white rounded-lg shadow-md p-8">
-          <h2 className="text-2xl font-bold text-text mb-6">Customer Reviews ({reviews.length})</h2>
-          <div className="space-y-4">
-            {reviews.map(review => (
-              <ReviewCard key={review.id} review={review} />
-            ))}
-          </div>
+          <h2 className="text-2xl font-bold text-text mb-6">Customer Reviews ({productReviews.length})</h2>
+          {productReviews.length > 0 ? (
+            <div className="space-y-4">
+              {productReviews.map(review => (
+                <ReviewCard key={review.id || review._id} review={review} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-8">No reviews yet. Be the first to review this product!</p>
+          )}
         </div>
       </div>
     </div>
