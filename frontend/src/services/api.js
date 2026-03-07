@@ -110,13 +110,94 @@ export const api = {
   
   // ==================== SERVICES ====================
   
-  getServices: async () => {
+  // Get all services
+  getServices: async (filters = {}) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/services`);
+      const queryParams = new URLSearchParams();
+      if (filters.category) queryParams.append('category', filters.category);
+      if (filters.search) queryParams.append('search', filters.search);
+      if (filters.location) queryParams.append('location', filters.location);
+      if (filters.minPrice) queryParams.append('minPrice', filters.minPrice);
+      if (filters.maxPrice) queryParams.append('maxPrice', filters.maxPrice);
+      
+      const url = `${API_BASE_URL}/services${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      const response = await fetch(url);
       return handleResponse(response);
     } catch (error) {
       console.error('Error fetching services:', error);
       return [];
+    }
+  },
+
+  // Get service by ID
+  getServiceById: async (id) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/services/${id}`);
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error fetching service:', error);
+      throw error;
+    }
+  },
+
+  // Create service (authenticated - vendor only)
+  createService: async (serviceData) => {
+    try {
+      const token = getAuthToken();
+      if (!token) throw new Error('Authentication required');
+      
+      const response = await fetch(`${API_BASE_URL}/services`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(serviceData)
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error creating service:', error);
+      throw error;
+    }
+  },
+
+  // Update service (authenticated - vendor only)
+  updateService: async (id, serviceData) => {
+    try {
+      const token = getAuthToken();
+      if (!token) throw new Error('Authentication required');
+      
+      const response = await fetch(`${API_BASE_URL}/services/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(serviceData)
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error updating service:', error);
+      throw error;
+    }
+  },
+
+  // Delete service (authenticated - vendor only)
+  deleteService: async (id) => {
+    try {
+      const token = getAuthToken();
+      if (!token) throw new Error('Authentication required');
+      
+      const response = await fetch(`${API_BASE_URL}/services/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error deleting service:', error);
+      throw error;
     }
   },
   
@@ -170,6 +251,7 @@ export const api = {
   
   // ==================== ORDERS ====================
   
+  // Create order (authenticated)
   createOrder: async (orderData) => {
     try {
       const token = getAuthToken();
@@ -189,12 +271,215 @@ export const api = {
       throw error;
     }
   },
+
+  // Get my orders (authenticated)
+  getMyOrders: async () => {
+    try {
+      const token = getAuthToken();
+      if (!token) throw new Error('Authentication required');
+      
+      const response = await fetch(`${API_BASE_URL}/orders/my-orders`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error fetching my orders:', error);
+      throw error;
+    }
+  },
+
+  // Get order by ID (authenticated)
+  getOrderById: async (id) => {
+    try {
+      const token = getAuthToken();
+      if (!token) throw new Error('Authentication required');
+      
+      const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error fetching order:', error);
+      throw error;
+    }
+  },
+
+  // Update order status (authenticated)
+  updateOrderStatus: async (id, status) => {
+    try {
+      const token = getAuthToken();
+      if (!token) throw new Error('Authentication required');
+      
+      const response = await fetch(`${API_BASE_URL}/orders/${id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status })
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      throw error;
+    }
+  },
   
   // ==================== BOOKINGS ====================
   
   createBooking: async (bookingData) => {
     // Mock implementation - will be updated when booking endpoint is ready
     return { success: true, bookingId: '456' };
+  },
+
+  // ==================== REVIEWS ====================
+
+  // Create review (authenticated)
+  createReview: async (reviewData) => {
+    try {
+      const token = getAuthToken();
+      if (!token) throw new Error('Authentication required');
+      
+      const response = await fetch(`${API_BASE_URL}/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(reviewData)
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error creating review:', error);
+      throw error;
+    }
+  },
+
+  // Get vendor reviews
+  getVendorReviews: async (vendorId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/reviews/vendor/${vendorId}`);
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error fetching vendor reviews:', error);
+      throw error;
+    }
+  },
+
+  // ==================== FINANCIAL CONTENT ====================
+
+  // Get all financial content
+  getFinancialContent: async (filters = {}) => {
+    try {
+      const queryParams = new URLSearchParams();
+      if (filters.category) queryParams.append('category', filters.category);
+      if (filters.contentType) queryParams.append('contentType', filters.contentType);
+      
+      const url = `${API_BASE_URL}/financial-content${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      const response = await fetch(url);
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error fetching financial content:', error);
+      throw error;
+    }
+  },
+
+  // Get financial content by ID
+  getFinancialContentById: async (id) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/financial-content/${id}`);
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error fetching financial content:', error);
+      throw error;
+    }
+  },
+
+  // Create financial content (authenticated - admin only)
+  createFinancialContent: async (contentData) => {
+    try {
+      const token = getAuthToken();
+      if (!token) throw new Error('Authentication required');
+      
+      const response = await fetch(`${API_BASE_URL}/financial-content`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(contentData)
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error creating financial content:', error);
+      throw error;
+    }
+  },
+
+  // ==================== BULK ORDERS ====================
+
+  // Create bulk order (authenticated)
+  createBulkOrder: async (bulkOrderData) => {
+    try {
+      const token = getAuthToken();
+      if (!token) throw new Error('Authentication required');
+      
+      const response = await fetch(`${API_BASE_URL}/bulk-orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(bulkOrderData)
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error creating bulk order:', error);
+      throw error;
+    }
+  },
+
+  // Get all bulk orders (authenticated)
+  getBulkOrders: async () => {
+    try {
+      const token = getAuthToken();
+      if (!token) throw new Error('Authentication required');
+      
+      const response = await fetch(`${API_BASE_URL}/bulk-orders`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error fetching bulk orders:', error);
+      throw error;
+    }
+  },
+
+  // Update bulk order (authenticated)
+  updateBulkOrder: async (id, bulkOrderData) => {
+    try {
+      const token = getAuthToken();
+      if (!token) throw new Error('Authentication required');
+      
+      const response = await fetch(`${API_BASE_URL}/bulk-orders/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(bulkOrderData)
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error updating bulk order:', error);
+      throw error;
+    }
   },
 
   // ==================== ADMIN ====================
@@ -309,6 +594,112 @@ export const api = {
       return handleResponse(response);
     } catch (error) {
       console.error('Error approving service:', error);
+      throw error;
+    }
+  },
+
+  // ==================== VENDOR GROUPS ====================
+  
+  // Get all vendor groups
+  getVendorGroups: async (filters = {}) => {
+    try {
+      const queryParams = new URLSearchParams();
+      if (filters.category) queryParams.append('category', filters.category);
+      if (filters.location) queryParams.append('location', filters.location);
+      
+      const url = `${API_BASE_URL}/vendor-groups${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      const response = await fetch(url);
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error fetching vendor groups:', error);
+      throw error;
+    }
+  },
+
+  // Get my vendor groups (authenticated)
+  getMyVendorGroups: async () => {
+    try {
+      const token = getAuthToken();
+      if (!token) throw new Error('Authentication required');
+      
+      const response = await fetch(`${API_BASE_URL}/vendor-groups/my-groups`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error fetching my vendor groups:', error);
+      throw error;
+    }
+  },
+
+  // Get vendor group members
+  getVendorGroupMembers: async (groupId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/vendor-groups/${groupId}/members`);
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error fetching group members:', error);
+      throw error;
+    }
+  },
+
+  // Join vendor group (authenticated vendor)
+  joinVendorGroup: async (groupId) => {
+    try {
+      const token = getAuthToken();
+      if (!token) throw new Error('Authentication required');
+      
+      const response = await fetch(`${API_BASE_URL}/vendor-groups/${groupId}/join`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error joining vendor group:', error);
+      throw error;
+    }
+  },
+
+  // Leave vendor group (authenticated vendor)
+  leaveVendorGroup: async (groupId) => {
+    try {
+      const token = getAuthToken();
+      if (!token) throw new Error('Authentication required');
+      
+      const response = await fetch(`${API_BASE_URL}/vendor-groups/${groupId}/leave`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error leaving vendor group:', error);
+      throw error;
+    }
+  },
+
+  // Create vendor group (admin only)
+  createVendorGroup: async (groupData) => {
+    try {
+      const token = getAuthToken();
+      if (!token) throw new Error('Authentication required');
+      
+      const response = await fetch(`${API_BASE_URL}/vendor-groups`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(groupData)
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error('Error creating vendor group:', error);
       throw error;
     }
   }

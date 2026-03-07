@@ -33,10 +33,11 @@ const Marketplace = () => {
 
   const filteredProducts = allProducts.filter(product => {
     const searchLower = searchTerm.toLowerCase();
+    const vendorName = product.vendor?.name || '';
     const matchesSearch = (
-      product.name.toLowerCase().includes(searchLower) ||
-      product.seller.toLowerCase().includes(searchLower) ||
-      product.category.toLowerCase().includes(searchLower)
+      product.name?.toLowerCase().includes(searchLower) ||
+      vendorName.toLowerCase().includes(searchLower) ||
+      product.category?.toLowerCase().includes(searchLower)
     );
 
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;

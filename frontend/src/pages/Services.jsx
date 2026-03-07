@@ -1,35 +1,46 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import UnifiedCard from '../components/UnifiedCard';
 import SearchBar from '../components/SearchBar';
+import api from '../services/api';
 
 const Services = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('all');
+  const [allServices, setAllServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const allServices = [
-    { id: 1, name: 'Professional Laundry Service', vendor: 'Almaz Tesfaye', vendorId: 1, price: 150, rating: 4.8, location: 'Addis Ababa', type: 'Laundry', image: 'https://via.placeholder.com/300x200' },
-    { id: 2, name: 'Babysitting & Childcare', vendor: 'Tigist Bekele', vendorId: 2, price: 200, rating: 4.9, location: 'Bahir Dar', type: 'Babysitting', image: 'https://via.placeholder.com/300x200' },
-    { id: 3, name: 'Event Catering', vendor: 'Hanna Girma', vendorId: 3, price: 5000, rating: 4.7, location: 'Addis Ababa', type: 'Catering', image: 'https://via.placeholder.com/300x200' },
-    { id: 4, name: 'House Cleaning', vendor: 'Marta Assefa', vendorId: 4, price: 300, rating: 4.6, location: 'Mekelle', type: 'Cleaning', image: 'https://via.placeholder.com/300x200' },
-    { id: 5, name: 'Sewing & Alterations', vendor: 'Sara Mulugeta', vendorId: 5, price: 250, rating: 4.9, location: 'Hawassa', type: 'Sewing', image: 'https://via.placeholder.com/300x200' },
-    { id: 6, name: 'Hair Braiding', vendor: 'Bethlehem Tadesse', vendorId: 6, price: 180, rating: 4.8, location: 'Addis Ababa', type: 'Beauty', image: 'https://via.placeholder.com/300x200' },
-    { id: 7, name: 'Home Cooking Service', vendor: 'Almaz Tesfaye', vendorId: 1, price: 400, rating: 4.7, location: 'Addis Ababa', type: 'Catering', image: 'https://via.placeholder.com/300x200' },
-    { id: 8, name: 'Ironing Service', vendor: 'Tigist Bekele', vendorId: 2, price: 100, rating: 4.8, location: 'Bahir Dar', type: 'Laundry', image: 'https://via.placeholder.com/300x200' },
-    { id: 9, name: 'Deep Cleaning Service', vendor: 'Marta Assefa', vendorId: 4, price: 500, rating: 4.7, location: 'Mekelle', type: 'Cleaning', image: 'https://via.placeholder.com/300x200' },
-    { id: 10, name: 'Makeup & Beauty', vendor: 'Bethlehem Tadesse', vendorId: 6, price: 350, rating: 4.9, location: 'Addis Ababa', type: 'Beauty', image: 'https://via.placeholder.com/300x200' },
-    { id: 11, name: 'Tailoring Service', vendor: 'Sara Mulugeta', vendorId: 5, price: 400, rating: 4.8, location: 'Hawassa', type: 'Sewing', image: 'https://via.placeholder.com/300x200' },
-    { id: 12, name: 'Nanny Service', vendor: 'Tigist Bekele', vendorId: 2, price: 250, rating: 4.9, location: 'Bahir Dar', type: 'Babysitting', image: 'https://via.placeholder.com/300x200' }
-  ];
+  const serviceTypes = ['laundry', 'daycare', 'cleaning', 'cooking', 'catering', 'sewing', 'hairdressing', 'other'];
 
-  const serviceTypes = ['Laundry', 'Babysitting', 'Catering', 'Cleaning', 'Sewing', 'Beauty'];
+  // Fetch services from API
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await api.getServices();
+        setAllServices(data);
+      } catch (err) {
+        console.error('Failed to fetch services:', err);
+        setError('Failed to load services. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
 
   const filteredServices = allServices.filter(service => {
-    const matchesSearch =
-      service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.vendor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.type.toLowerCase().includes(searchTerm.toLowerCase());
+    const searchLower = searchTerm.toLowerCase();
+    const vendorName = service.vendor?.name || '';
+    const matchesSearch = (
+      service.name?.toLowerCase().includes(searchLower) ||
+      vendorName.toLowerCase().includes(searchLower) ||
+      service.category?.toLowerCase().includes(searchLower)
+    );
 
-    const matchesType = selectedType === 'all' || service.type === selectedType;
+    const matchesType = selectedType === 'all' || service.category === selectedType;
 
     return matchesSearch && matchesType;
   });
@@ -65,7 +76,7 @@ const Services = () => {
               <button
                 key={type}
                 onClick={() => setSelectedType(type)}
-                className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                className={`px-6 py-3 rounded-lg font-semibold transition-all capitalize ${
                   selectedType === type
                     ? 'bg-primary text-white shadow-md'
                     : 'bg-white text-gray-700 hover:bg-gray-100 shadow'
@@ -77,31 +88,57 @@ const Services = () => {
           </div>
         </div>
 
-        {/* Results Info */}
-        <div className="mb-6 flex justify-between items-center">
-          <p className="text-gray-600">
-            Showing {filteredServices.length} of {allServices.length} services
-          </p>
-          {searchTerm && (
-            <p className="text-sm text-gray-500">
-              Search results for: <span className="font-semibold">"{searchTerm}"</span>
-            </p>
-          )}
-        </div>
-
-        {/* Services Grid */}
-        {filteredServices.length === 0 ? (
+        {/* Loading State */}
+        {loading && (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4">🔍</div>
-            <p className="text-gray-500 text-lg mb-2">No services found</p>
-            <p className="text-gray-400">Try searching with different keywords or change filters</p>
+            <div className="text-6xl mb-4">⏳</div>
+            <p className="text-gray-500 text-lg">Loading services...</p>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredServices.map(service => (
-              <UnifiedCard key={service.id} item={service} type="service" />
-            ))}
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">⚠️</div>
+            <p className="text-red-500 text-lg mb-2">{error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="text-primary hover:underline"
+            >
+              Try again
+            </button>
           </div>
+        )}
+
+        {/* Results Info */}
+        {!loading && !error && (
+          <>
+            <div className="mb-6 flex justify-between items-center">
+              <p className="text-gray-600">
+                Showing {filteredServices.length} of {allServices.length} services
+              </p>
+              {searchTerm && (
+                <p className="text-sm text-gray-500">
+                  Search results for: <span className="font-semibold">"{searchTerm}"</span>
+                </p>
+              )}
+            </div>
+
+            {/* Services Grid */}
+            {filteredServices.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">🔍</div>
+                <p className="text-gray-500 text-lg mb-2">No services found</p>
+                <p className="text-gray-400">Try searching with different keywords or change filters</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredServices.map(service => (
+                  <UnifiedCard key={service.id} item={service} type="service" />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

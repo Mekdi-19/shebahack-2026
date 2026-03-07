@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import api from '../services/api';
 
 const AuthContext = createContext();
 
@@ -10,40 +11,66 @@ export const useAuth = () => {
   return context;
 };
 
-// Mock users database
-const mockUsers = [
-  { id: 1, email: 'admin@empowerher.et', password: 'admin123', role: 'admin', name: 'Admin User' },
-  { id: 2, email: 'customer@test.et', password: 'customer123', role: 'customer', name: 'Test Customer' },
-  { id: 3, email: 'vendor@test.et', password: 'vendor123', role: 'vendor', name: 'Almaz Tesfaye' },
-  { id: 4, email: 'vendor2@test.et', password: 'vendor123', role: 'vendor', name: 'Tigist Bekele' }
-];
-
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
+    // Check for temporary user first (for testing without backend)
+    const tempUser = localStorage.getItem('tempUser');
+    if (tempUser) {
+      return JSON.parse(tempUser);
+    }
+    
+    // Otherwise check for real user
     const savedUser = localStorage.getItem('user');
     return savedUser ? JSON.parse(savedUser) : null;
   });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
+      // Also save as tempUser for temporary mode
+      localStorage.setItem('tempUser', JSON.stringify(user));
     } else {
       localStorage.removeItem('user');
+      localStorage.removeItem('tempUser');
+      localStorage.removeItem('token');
     }
   }, [user]);
 
-  const login = (email, password, role) => {
-    const foundUser = mockUsers.find(
-      u => u.email === email && u.password === password && u.role === role
-    );
-
-    if (foundUser) {
-      const { password: _, ...userWithoutPassword } = foundUser;
-      setUser(userWithoutPassword);
-      return { success: true, user: userWithoutPassword };
+  const login = async (email, password) => {
+    try {
+      setLoading(true);
+      const data = await api.login(email, password);
+      
+      if (data.token && data.user) {
+        setUser(data.user);
+        return { success: true, user: data.user };
+      }
+      
+      return { success: false, message: 'Login failed' };
+    } catch (error) {
+      return { success: false, message: error.message || 'Invalid credentials' };
+    } finally {
+      setLoading(false);
     }
+  };
 
-    return { success: false, message: 'Invalid credentials or role' };
+  const signup = async (userData) => {
+    try {
+      setLoading(true);
+      const data = await api.signup(userData);
+      
+      if (data.token && data.user) {
+        setUser(data.user);
+        return { success: true, user: data.user };
+      }
+      
+      return { success: false, message: 'Signup failed' };
+    } catch (error) {
+      return { success: false, message: error.message || 'Registration failed' };
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = () => {
@@ -59,11 +86,13 @@ export const AuthProvider = ({ children }) => {
       value={{
         user,
         login,
+        signup,
         logout,
         isVendor,
         isAdmin,
         isCustomer,
-        isAuthenticated: !!user
+        isAuthenticated: !!user,
+        loading
       }}
     >
       {children}

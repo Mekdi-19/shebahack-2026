@@ -33,7 +33,7 @@ const UnifiedCard = ({ item, type = 'product' }) => {
       id: item.id,
       name: item.name,
       price: item.price,
-      seller: item.vendor,
+      seller: item.vendor?.name || item.vendor,
       image: item.image || '',
       type: 'service'
     } : item;
@@ -94,7 +94,7 @@ const UnifiedCard = ({ item, type = 'product' }) => {
             to={getVendorLink()}
             className="text-primary hover:underline font-semibold"
           >
-            {item.vendor || item.seller}
+            {item.vendor?.name || item.vendor || item.seller?.name || item.seller}
           </Link>
         </p>
         

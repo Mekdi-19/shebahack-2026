@@ -2,9 +2,12 @@ const Service = require('../models/Service');
 
 exports.createService = async (req, res) => {
   try {
-    const service = await Service.create({ ...req.body, provider: req.user.id });
-    res.status(201).json(service);
+    console.log('Creating service for user:', req.user);
+    const service = await Service.create({ ...req.body, provider: req.user._id || req.user.id });
+    const populatedService = await Service.findById(service._id).populate('provider', 'name email phone');
+    res.status(201).json(populatedService);
   } catch (error) {
+    console.error('Error creating service:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -51,11 +54,12 @@ exports.getServiceById = async (req, res) => {
 
 exports.updateService = async (req, res) => {
   try {
+    const userId = req.user._id || req.user.id;
     const service = await Service.findOneAndUpdate(
-      { _id: req.params.id, provider: req.user.id },
+      { _id: req.params.id, provider: userId },
       req.body,
       { new: true }
-    );
+    ).populate('provider', 'name email phone');
     if (!service) return res.status(404).json({ message: 'Service not found or unauthorized' });
     res.json(service);
   } catch (error) {
@@ -65,7 +69,8 @@ exports.updateService = async (req, res) => {
 
 exports.deleteService = async (req, res) => {
   try {
-    const service = await Service.findOneAndDelete({ _id: req.params.id, provider: req.user.id });
+    const userId = req.user._id || req.user.id;
+    const service = await Service.findOneAndDelete({ _id: req.params.id, provider: userId });
     if (!service) return res.status(404).json({ message: 'Service not found or unauthorized' });
     res.json({ message: 'Service deleted' });
   } catch (error) {

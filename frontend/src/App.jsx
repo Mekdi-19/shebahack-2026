@@ -24,8 +24,12 @@ import ProductDetails from './pages/ProductDetails';
 import VentureOpportunities from './pages/VentureOpportunities';
 import VendorProfile from './pages/VendorProfile';
 import VendorProducts from './pages/VendorProducts';
+import VendorServices from './pages/VendorServices';
+import VendorGroups from './pages/VendorGroups';
 import TeamWorkspace from './pages/TeamWorkspace';
 import VentureWorkspace from './pages/VentureWorkspace';
+import Orders from './pages/Orders';
+import BulkOrders from './pages/BulkOrders';
 
 function App() {
   return (
@@ -55,6 +59,10 @@ function App() {
                     <Route path="/my-ventures" element={<MyVentures />} />
                     <Route path="/product/:id" element={<ProductDetails />} />
                     <Route path="/vendor-products" element={<VendorProducts />} />
+                    <Route path="/vendor-services" element={<VendorServices />} />
+                    <Route path="/vendor-groups" element={<VendorGroups />} />
+                    <Route path="/orders" element={<Orders />} />
+                    <Route path="/bulk-orders" element={<BulkOrders />} />
                     <Route path="/venture-opportunities" element={<VentureOpportunities />} />
                     <Route path="/vendor/:id" element={<VendorProfile />} />
                     <Route path="/team/:id" element={<TeamWorkspace />} />

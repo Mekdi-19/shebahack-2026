@@ -7,14 +7,16 @@ const Dashboard = () => {
   const { user, isVendor } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
 
-  // Redirect if not vendor
+  // Redirect if not logged in (but allow vendors and admins)
   useEffect(() => {
     if (!user) {
       navigate('/login');
-    } else if (!isVendor()) {
-      navigate('/');
+    } else if (user.role === 'customer') {
+      // Customers should go to marketplace instead
+      navigate('/marketplace');
     }
-  }, [user, isVendor, navigate]);
+    // Allow vendors and admins to access dashboard
+  }, [user, navigate]);
 
   // Mock data for vendor dashboard
   const stats = {
@@ -43,7 +45,7 @@ const Dashboard = () => {
     { id: '004', productName: 'Handmade Jewelry', customer: 'Bethlehem Tadesse', quantity: 1, total: 380, status: 'completed', date: '2024-03-02' }
   ];
 
-  if (!user || !isVendor()) {
+  if (!user) {
     return null;
   }
 
@@ -78,6 +80,45 @@ const Dashboard = () => {
             </div>
             <p className="text-4xl font-bold text-primary">{stats.activeListings}</p>
           </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <button
+            onClick={() => navigate('/vendor-products')}
+            className="bg-gradient-to-r from-primary to-secondary text-white rounded-lg shadow-md p-6 hover:shadow-lg transition text-left"
+          >
+            <div className="text-4xl mb-3">📦</div>
+            <h3 className="text-xl font-bold mb-2">Manage Products</h3>
+            <p className="text-sm opacity-90">Add, edit, or remove your products</p>
+          </button>
+
+          <button
+            onClick={() => navigate('/vendor-services')}
+            className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg shadow-md p-6 hover:shadow-lg transition text-left"
+          >
+            <div className="text-4xl mb-3">🛠️</div>
+            <h3 className="text-xl font-bold mb-2">Manage Services</h3>
+            <p className="text-sm opacity-90">Add, edit, or remove your services</p>
+          </button>
+          
+          <button
+            onClick={() => navigate('/vendor-groups')}
+            className="bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-lg shadow-md p-6 hover:shadow-lg transition text-left"
+          >
+            <div className="text-4xl mb-3">👥</div>
+            <h3 className="text-xl font-bold mb-2">Vendor Groups</h3>
+            <p className="text-sm opacity-90">Join collaboration groups</p>
+          </button>
+
+          <button
+            onClick={() => navigate('/venture-opportunities')}
+            className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg shadow-md p-6 hover:shadow-lg transition text-left"
+          >
+            <div className="text-4xl mb-3">🚀</div>
+            <h3 className="text-xl font-bold mb-2">Venture Opportunities</h3>
+            <p className="text-sm opacity-90">Explore new opportunities</p>
+          </button>
         </div>
 
         {/* Tabs */}
@@ -132,29 +173,23 @@ const Dashboard = () => {
               <div>
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold">Manage Products</h2>
-                  <button className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-opacity-90 transition font-semibold">
-                    + Add Product
+                  <button 
+                    onClick={() => navigate('/vendor-products')}
+                    className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-opacity-90 transition font-semibold"
+                  >
+                    Go to Product Management
                   </button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {mockProducts.map(product => (
-                    <div key={product.id} className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition">
-                      <img src={product.image} alt={product.name} className="w-full h-32 object-cover rounded mb-3" />
-                      <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-primary font-bold">{product.price} ETB</span>
-                        <span className="text-sm text-gray-600">Stock: {product.stock}</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <button className="flex-1 bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition">
-                          Edit
-                        </button>
-                        <button className="flex-1 bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition">
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                <div className="text-center py-12 bg-gray-50 rounded-lg">
+                  <div className="text-6xl mb-4">📦</div>
+                  <h3 className="text-xl font-semibold mb-2">Product Management</h3>
+                  <p className="text-gray-600 mb-6">Add, edit, and manage all your products</p>
+                  <button
+                    onClick={() => navigate('/vendor-products')}
+                    className="bg-primary text-white px-8 py-3 rounded-lg hover:bg-opacity-90 transition font-semibold"
+                  >
+                    Manage Products
+                  </button>
                 </div>
               </div>
             )}
@@ -163,63 +198,48 @@ const Dashboard = () => {
               <div>
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold">Manage Services</h2>
-                  <button className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-opacity-90 transition font-semibold">
-                    + Add Service
+                  <button 
+                    onClick={() => navigate('/vendor-services')}
+                    className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-opacity-90 transition font-semibold"
+                  >
+                    Go to Service Management
                   </button>
                 </div>
-                <div className="space-y-4">
-                  {mockServices.map(service => (
-                    <div key={service.id} className="bg-gray-50 rounded-lg p-6 hover:shadow-md transition">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="font-semibold text-lg mb-1">{service.name}</h3>
-                          <p className="text-gray-600">Total Bookings: {service.bookings}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-primary">{service.price} ETB</p>
-                          <span className="inline-block mt-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-                            {service.status}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <button className="flex-1 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
-                          Edit Service
-                        </button>
-                        <button className="flex-1 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
-                          Delete Service
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                <div className="text-center py-12 bg-gray-50 rounded-lg">
+                  <div className="text-6xl mb-4">🛠️</div>
+                  <h3 className="text-xl font-semibold mb-2">Service Management</h3>
+                  <p className="text-gray-600 mb-6">Add, edit, and manage all your services</p>
+                  <button
+                    onClick={() => navigate('/vendor-services')}
+                    className="bg-primary text-white px-8 py-3 rounded-lg hover:bg-opacity-90 transition font-semibold"
+                  >
+                    Manage Services
+                  </button>
                 </div>
               </div>
             )}
 
             {activeTab === 'orders' && (
               <div>
-                <h2 className="text-2xl font-bold mb-4">All Orders</h2>
-                <div className="space-y-4">
-                  {orders.map(order => (
-                    <div key={order.id} className="bg-gray-50 rounded-lg p-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-semibold">{order.productName}</h3>
-                          <p className="text-sm text-gray-600">Customer: {order.customer}</p>
-                          <p className="text-sm text-gray-600">Quantity: {order.quantity}</p>
-                          <p className="text-sm text-gray-500">Date: {order.date}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-primary">{order.total} ETB</p>
-                          <span className={`inline-block mt-1 px-2 py-1 rounded-full text-xs ${
-                            order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
-                          }`}>
-                            {order.status}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold">Order Management</h2>
+                  <button 
+                    onClick={() => navigate('/orders')}
+                    className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-opacity-90 transition font-semibold"
+                  >
+                    Go to Order Management
+                  </button>
+                </div>
+                <div className="text-center py-12 bg-gray-50 rounded-lg">
+                  <div className="text-6xl mb-4">📋</div>
+                  <h3 className="text-xl font-semibold mb-2">Order Management</h3>
+                  <p className="text-gray-600 mb-6">View and manage all your orders</p>
+                  <button
+                    onClick={() => navigate('/orders')}
+                    className="bg-primary text-white px-8 py-3 rounded-lg hover:bg-opacity-90 transition font-semibold"
+                  >
+                    Manage Orders
+                  </button>
                 </div>
               </div>
             )}

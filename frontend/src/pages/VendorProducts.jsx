@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
+
+
+
 const VendorProducts = () => {
   const { user, isVendor } = useAuth();
   const navigate = useNavigate();
@@ -30,18 +33,30 @@ const VendorProducts = () => {
   // Fetch vendor's products
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [user]);
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await api.getProducts();
+      console.log('Fetched products:', data);
+      console.log('Current user:', user);
+      
       // Filter to show only current vendor's products
-      const vendorProducts = data.filter(p => p.vendor?._id === user?._id);
+      // Handle both _id and id fields
+      const vendorProducts = data.filter(p => {
+        const vendorId = p.vendor?._id || p.vendor?.id || p.vendor;
+        const userId = user?._id || user?.id;
+        console.log('Comparing:', vendorId, 'with', userId);
+        return vendorId === userId || vendorId?.toString() === userId?.toString();
+      });
+      
+      console.log('Filtered vendor products:', vendorProducts);
       setProducts(vendorProducts);
     } catch (err) {
       setError('Failed to load products');
-      console.error(err);
+      console.error('Error fetching products:', err);
     } finally {
       setLoading(false);
     }
@@ -54,17 +69,35 @@ const VendorProducts = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Submitting product:', formData);
+    console.log('User token:', localStorage.getItem('token'));
+    
     try {
+      // Convert string values to numbers
+      const productData = {
+        ...formData,
+        price: parseFloat(formData.price),
+        stock: parseInt(formData.stock)
+      };
+      
+      console.log('Product data to send:', productData);
+      
       if (editingProduct) {
-        await api.updateProduct(editingProduct._id, formData);
+        const result = await api.updateProduct(editingProduct._id, productData);
+        console.log('Update result:', result);
+        alert('Product updated successfully!');
       } else {
-        await api.createProduct(formData);
+        const result = await api.createProduct(productData);
+        console.log('Create result:', result);
+        alert('Product created successfully!');
       }
+      
       setShowForm(false);
       setEditingProduct(null);
       setFormData({ name: '', description: '', price: '', category: '', stock: '', images: [] });
-      fetchProducts();
+      await fetchProducts();
     } catch (err) {
+      console.error('Error saving product:', err);
       alert('Failed to save product: ' + err.message);
     }
   };

@@ -2,9 +2,12 @@ const Product = require('../models/Product');
 
 exports.createProduct = async (req, res) => {
   try {
-    const product = await Product.create({ ...req.body, vendor: req.user.id });
-    res.status(201).json(product);
+    console.log('Creating product for user:', req.user);
+    const product = await Product.create({ ...req.body, vendor: req.user._id || req.user.id });
+    const populatedProduct = await Product.findById(product._id).populate('vendor', 'name email phone');
+    res.status(201).json(populatedProduct);
   } catch (error) {
+    console.error('Error creating product:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -51,11 +54,12 @@ exports.getProductById = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
+    const userId = req.user._id || req.user.id;
     const product = await Product.findOneAndUpdate(
-      { _id: req.params.id, vendor: req.user.id },
+      { _id: req.params.id, vendor: userId },
       req.body,
       { new: true }
-    );
+    ).populate('vendor', 'name email phone');
     if (!product) return res.status(404).json({ message: 'Product not found or unauthorized' });
     res.json(product);
   } catch (error) {
@@ -65,7 +69,8 @@ exports.updateProduct = async (req, res) => {
 
 exports.deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findOneAndDelete({ _id: req.params.id, vendor: req.user.id });
+    const userId = req.user._id || req.user.id;
+    const product = await Product.findOneAndDelete({ _id: req.params.id, vendor: userId });
     if (!product) return res.status(404).json({ message: 'Product not found or unauthorized' });
     res.json({ message: 'Product deleted' });
   } catch (error) {
