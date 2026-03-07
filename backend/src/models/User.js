@@ -26,6 +26,15 @@ const userSchema = new mongoose.Schema({
   totalReviews: { type: Number, default: 0 },
   totalEarnings: { type: Number, default: 0 },
   
+  // Vendor offering type
+  offeringType: { 
+    type: String, 
+    enum: ['products', 'services', 'both', 'not_set'], 
+    default: 'not_set' 
+  },
+  // Can be set later if vendor chooses "skip for now"
+  hasCompletedProfile: { type: Boolean, default: false },
+  
   // Organization specific fields
   organizationType: { type: String, enum: ['restaurant', 'office', 'shop', 'hotel', 'other'] },
   businessName: String,
@@ -35,10 +44,16 @@ const userSchema = new mongoose.Schema({
   isPhoneVerified: { type: Boolean, default: false },
   isIdVerified: { type: Boolean, default: false },
   verificationDocuments: [String],
+  rejectionReason: String,
+  
+  // Account Status
+  isActive: { type: Boolean, default: true },
+  suspensionReason: String,
   
   // Financial
-  paymentMethod: { type: String, enum: ['telebirr', 'bank_transfer', 'cash'], default: 'telebirr' },
+  paymentMethod: { type: String, enum: ['telebirr', 'mpesa', 'bank_transfer', 'cash'], default: 'telebirr' },
   telebirrNumber: String,
+  mpesaNumber: String,
   bankAccount: {
     bankName: String,
     accountNumber: String

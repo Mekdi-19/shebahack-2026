@@ -7,5 +7,6 @@ router.post('/register', userController.register);
 router.post('/login', userController.login);
 router.get('/profile', authenticate, userController.getProfile);
 router.put('/profile', authenticate, userController.updateProfile);
+router.put('/set-offering-type', authenticate, userController.setOfferingType);
 
 module.exports = router;

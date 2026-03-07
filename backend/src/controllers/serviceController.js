@@ -1,8 +1,18 @@
 const Service = require('../models/Service');
+const notificationService = require('../services/notificationService');
 
 exports.createService = async (req, res) => {
   try {
-    const service = await Service.create({ ...req.body, provider: req.user.id });
+    const service = await Service.create({ 
+      ...req.body, 
+      provider: req.user.id
+    });
+    
+    // Notify subscribers about new service (async, don't wait)
+    notificationService.notifyNewService(service).catch(err => 
+      console.error('Notification error:', err)
+    );
+    
     res.status(201).json(service);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -68,6 +78,99 @@ exports.deleteService = async (req, res) => {
     const service = await Service.findOneAndDelete({ _id: req.params.id, provider: req.user.id });
     if (!service) return res.status(404).json({ message: 'Service not found or unauthorized' });
     res.json({ message: 'Service deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+// Rate Service
+exports.rateService = async (req, res) => {
+  try {
+    const ServiceRating = require('../models/ServiceRating');
+    const { verifyPurchase, updateAverageRating } = require('../utils/ratingHelper');
+    
+    const { rating, comment, commentAmharic, orderId, images } = req.body;
+    const serviceId = req.params.id;
+    const customerId = req.user.id;
+
+    // Verify purchase
+    const hasPurchased = await verifyPurchase(orderId, customerId, serviceId, 'service');
+    if (!hasPurchased) {
+      return res.status(403).json({ 
+        message: 'You can only rate services you have purchased and received' 
+      });
+    }
+
+    // Check if already rated
+    const existingRating = await ServiceRating.findOne({
+      service: serviceId,
+      customer: customerId,
+      order: orderId
+    });
+
+    if (existingRating) {
+      return res.status(400).json({ 
+        message: 'You have already rated this service for this order' 
+      });
+    }
+
+    // Create rating
+    const serviceRating = await ServiceRating.create({
+      service: serviceId,
+      customer: customerId,
+      order: orderId,
+      rating,
+      comment,
+      commentAmharic,
+      images: images || []
+    });
+
+    // Update average rating
+    await updateAverageRating(ServiceRating, Service, serviceId, 'service');
+
+    const populatedRating = await ServiceRating.findById(serviceRating._id)
+      .populate('customer', 'name')
+      .populate('service', 'name nameAmharic');
+
+    res.status(201).json({
+      message: 'Service rated successfully',
+      rating: populatedRating
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'You have already rated this service' });
+    }
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get Service Ratings
+exports.getServiceRatings = async (req, res) => {
+  try {
+    const ServiceRating = require('../models/ServiceRating');
+    const { paginate } = require('../utils/paginationHelper');
+    const { getRatingDistribution } = require('../utils/ratingHelper');
+    const { page = 1, limit = 10, rating: ratingFilter } = req.query;
+    const serviceId = req.params.id;
+
+    const filter = { service: serviceId, isApproved: true };
+    if (ratingFilter) filter.rating = Number(ratingFilter);
+
+    const result = await paginate(ServiceRating, filter, {
+      page,
+      limit,
+      populate: 'customer',
+      select: 'name'
+    });
+
+    const distribution = await getRatingDistribution(ServiceRating, serviceId, 'service');
+
+    res.json({
+      ratings: result.data,
+      ...result.pagination,
+      distribution
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

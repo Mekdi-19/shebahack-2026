@@ -9,9 +9,27 @@ const productSchema = new mongoose.Schema({
   category: { 
     type: String, 
     required: true,
-    enum: ['handmade_crafts', 'food', 'clothes', 'jewelry', 'baskets', 'textiles', 'other']
+    enum: [
+      'handmade_crafts', 
+      'crafts',
+      'food', 
+      'clothes', 
+      'jewelry', 
+      'baskets', 
+      'textiles',
+      'home_kitchen',
+      'household',
+      'beauty',
+      'accessories',
+      'art',
+      'pottery',
+      'weaving',
+      'embroidery',
+      'other'
+    ]
   },
   vendor: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  skill: { type: String }, // Optional - which skill is used for this product
   images: [String],
   stock: { type: Number, default: 0 },
   minOrderQuantity: { type: Number, default: 1 },
@@ -22,7 +40,8 @@ const productSchema = new mongoose.Schema({
   rating: { type: Number, default: 0 },
   totalReviews: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
-  isApproved: { type: Boolean, default: false }
+  isApproved: { type: Boolean, default: false },
+  rejectionReason: String
 }, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);

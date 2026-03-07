@@ -18,7 +18,7 @@ const orderSchema = new mongoose.Schema({
     enum: ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'], 
     default: 'pending' 
   },
-  paymentMethod: { type: String, enum: ['telebirr', 'bank_transfer', 'cash'], required: true },
+  paymentMethod: { type: String, enum: ['telebirr', 'mpesa', 'bank_transfer', 'cash'], required: true },
   paymentStatus: { type: String, enum: ['pending', 'completed', 'failed', 'refunded'], default: 'pending' },
   transactionId: String,
   deliveryAddress: {
