@@ -1,7 +1,20 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import RatingStars from './RatingStars';
 
 const ProductCard = ({ product }) => {
+  const navigate = useNavigate();
+  const { user, isCustomer } = useAuth();
+
+  const handleSpecialOffer = () => {
+    navigate('/special-offer', { 
+      state: { 
+        itemName: product.name,
+        itemType: 'product'
+      } 
+    });
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
       <img 
@@ -22,6 +35,16 @@ const ProductCard = ({ product }) => {
             View Details
           </Link>
         </div>
+        
+        {/* Special Offer Button - Only for customers */}
+        {user && isCustomer() && (
+          <button
+            onClick={handleSpecialOffer}
+            className="w-full mt-3 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition font-semibold"
+          >
+            Special Offer
+          </button>
+        )}
       </div>
     </div>
   );

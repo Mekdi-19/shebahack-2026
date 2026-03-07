@@ -9,7 +9,7 @@ const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const { user } = useAuth(); // Allow any logged-in user including vendors
+  const { user, isCustomer } = useAuth(); // Allow any logged-in user including vendors
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
 
@@ -57,6 +57,15 @@ const ProductDetails = () => {
     }
     addToCart(product, quantity);
     navigate('/checkout');
+  };
+
+  const handleSpecialOffer = () => {
+    navigate('/special-offer', { 
+      state: { 
+        itemName: product.name,
+        itemType: 'product'
+      } 
+    });
   };
 
   return (
@@ -156,21 +165,33 @@ const ProductDetails = () => {
                 </div>
               </div>
 
-              <div className="flex gap-4">
-                <button 
-                  onClick={handleAddToCart}
-                  className="flex-1 bg-primary text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-opacity-90 transition"
-                  disabled={!product.inStock}
-                >
-                  Add to Cart
-                </button>
-                <button 
-                  onClick={handleOrderNow}
-                  className="flex-1 bg-secondary text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-opacity-90 transition"
-                  disabled={!product.inStock}
-                >
-                  Order Now
-                </button>
+              <div className="space-y-3">
+                <div className="flex gap-4">
+                  <button 
+                    onClick={handleAddToCart}
+                    className="flex-1 bg-primary text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-opacity-90 transition"
+                    disabled={!product.inStock}
+                  >
+                    Add to Cart
+                  </button>
+                  <button 
+                    onClick={handleOrderNow}
+                    className="flex-1 bg-secondary text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-opacity-90 transition"
+                    disabled={!product.inStock}
+                  >
+                    Order Now
+                  </button>
+                </div>
+
+                {/* Special Offer Button - Only for customers */}
+                {user && isCustomer() && (
+                  <button
+                    onClick={handleSpecialOffer}
+                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg text-lg font-semibold transition"
+                  >
+                    Request Special Offer
+                  </button>
+                )}
               </div>
             </div>
           </div>

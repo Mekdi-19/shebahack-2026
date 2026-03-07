@@ -13,8 +13,10 @@ const Checkout = () => {
     phone: '',
     address: '',
     city: '',
-    paymentMethod: 'cash'
+    mpesaPhone: '',
+    mpesaAmount: getCartTotal()
   });
+  const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
 
   // Redirect if not logged in or cart is empty
   useEffect(() => {
@@ -24,24 +26,58 @@ const Checkout = () => {
       navigate('/cart');
     }
   }, [user, cart, navigate]);
+
   useEffect(() => {
-    if (!user || user.role !== 'customer') {
-      navigate('/login');
-    } else if (cart.length === 0) {
-      navigate('/cart');
-    }
-  }, [user, cart, navigate]);
+    setFormData(prev => ({ ...prev, mpesaAmount: getCartTotal() }));
+  }, [getCartTotal]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you would normally process the order
-    alert('Order placed successfully!');
-    clearCart();
-    navigate('/');
+    
+    // Save order to localStorage
+    const existingOrders = JSON.parse(localStorage.getItem('customerOrders') || '[]');
+    const newOrders = cart.map(item => ({
+      ...item,
+      status: 'ordered',
+      orderDate: new Date().toISOString(),
+      paymentMethod: 'M-Pesa',
+      mpesaPhone: formData.mpesaPhone
+    }));
+    
+    localStorage.setItem('customerOrders', JSON.stringify([...existingOrders, ...newOrders]));
+    
+    // Show success message
+    setShowPaymentSuccess(true);
+    
+    // Clear cart and redirect after 3 seconds
+    setTimeout(() => {
+      clearCart();
+      navigate('/cart');
+    }, 3000);
   };
 
-  if (!user || user.role !== 'customer' || cart.length === 0) {
+  if (!user || cart.length === 0) {
     return null;
+  }
+
+  if (showPaymentSuccess) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-white rounded-lg shadow-xl p-12 max-w-md text-center">
+          <div className="text-6xl mb-4">✓</div>
+          <h2 className="text-3xl font-bold text-green-600 mb-4">Payment Request Sent!</h2>
+          <p className="text-gray-600 text-lg mb-2">
+            Payment request sent to your M-Pesa phone
+          </p>
+          <p className="text-gray-500 mb-6">
+            Phone: {formData.mpesaPhone}
+          </p>
+          <p className="text-sm text-gray-500">
+            Redirecting to orders page...
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -117,41 +153,58 @@ const Checkout = () => {
                 </select>
               </div>
 
-              <h2 className="text-2xl font-bold mb-6 mt-8">Payment Method</h2>
+              <h2 className="text-2xl font-bold mb-6 mt-8">M-Pesa Payment</h2>
 
-              <div className="space-y-3 mb-6">
-                {[
-                  { value: 'cash', label: 'Cash on Delivery', icon: '💵' },
-                  { value: 'mobile', label: 'Mobile Money', icon: '📱' },
-                  { value: 'bank', label: 'Bank Transfer', icon: '🏦' }
-                ].map(method => (
-                  <label
-                    key={method.value}
-                    className={`flex items-center space-x-3 p-4 border-2 rounded-lg cursor-pointer transition ${
-                      formData.paymentMethod === method.value
-                        ? 'border-primary bg-primary bg-opacity-10'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
+              <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+                <div className="flex items-center mb-4">
+                  <span className="text-4xl mr-3">📱</span>
+                  <div>
+                    <h3 className="font-bold text-lg text-green-800">Pay with M-Pesa</h3>
+                    <p className="text-sm text-green-600">Secure mobile money payment</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-gray-700 font-semibold mb-2">
+                      M-Pesa Phone Number <span className="text-red-500">*</span>
+                    </label>
                     <input
-                      type="radio"
-                      name="paymentMethod"
-                      value={method.value}
-                      checked={formData.paymentMethod === method.value}
-                      onChange={(e) => setFormData({...formData, paymentMethod: e.target.value})}
-                      className="text-primary"
+                      type="tel"
+                      value={formData.mpesaPhone}
+                      onChange={(e) => setFormData({...formData, mpesaPhone: e.target.value})}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg focus:border-green-500 focus:outline-none"
+                      placeholder="+251 9XX XXX XXX"
+                      required
                     />
-                    <span className="text-2xl">{method.icon}</span>
-                    <span className="font-semibold">{method.label}</span>
-                  </label>
-                ))}
+                    <p className="text-xs text-gray-500 mt-1">
+                      Enter the phone number registered with M-Pesa
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-700 font-semibold mb-2">Amount (ETB)</label>
+                    <input
+                      type="number"
+                      value={formData.mpesaAmount}
+                      readOnly
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg bg-gray-100 font-bold text-green-700"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <p className="text-sm text-blue-800">
+                  <strong>How it works:</strong> After clicking "Confirm Payment", you will receive an M-Pesa prompt on your phone. Enter your M-Pesa PIN to complete the payment.
+                </p>
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-secondary text-white px-6 py-4 rounded-lg text-lg font-semibold hover:bg-opacity-90 transition"
+                className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-lg text-lg font-semibold transition"
               >
-                Place Order
+                Confirm M-Pesa Payment
               </button>
             </form>
           </div>

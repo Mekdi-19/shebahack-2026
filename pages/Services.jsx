@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import ServiceCard from '../components/ServiceCard';
+import UnifiedCard from '../components/UnifiedCard';
 import SearchBar from '../components/SearchBar';
 
 const Services = () => {
@@ -7,18 +7,18 @@ const Services = () => {
   const [selectedType, setSelectedType] = useState('all');
 
   const allServices = [
-    { id: 1, name: 'Professional Laundry Service', vendor: 'Almaz Tesfaye', vendorId: 1, price: 150, rating: 4.8, location: 'Addis Ababa', type: 'Laundry' },
-    { id: 2, name: 'Babysitting & Childcare', vendor: 'Tigist Bekele', vendorId: 2, price: 200, rating: 4.9, location: 'Bahir Dar', type: 'Babysitting' },
-    { id: 3, name: 'Event Catering', vendor: 'Hanna Girma', vendorId: 3, price: 5000, rating: 4.7, location: 'Addis Ababa', type: 'Catering' },
-    { id: 4, name: 'House Cleaning', vendor: 'Marta Assefa', vendorId: 4, price: 300, rating: 4.6, location: 'Mekelle', type: 'Cleaning' },
-    { id: 5, name: 'Sewing & Alterations', vendor: 'Sara Mulugeta', vendorId: 5, price: 250, rating: 4.9, location: 'Hawassa', type: 'Sewing' },
-    { id: 6, name: 'Hair Braiding', vendor: 'Bethlehem Tadesse', vendorId: 6, price: 180, rating: 4.8, location: 'Addis Ababa', type: 'Beauty' },
-    { id: 7, name: 'Home Cooking Service', vendor: 'Almaz Tesfaye', vendorId: 1, price: 400, rating: 4.7, location: 'Addis Ababa', type: 'Catering' },
-    { id: 8, name: 'Ironing Service', vendor: 'Tigist Bekele', vendorId: 2, price: 100, rating: 4.8, location: 'Bahir Dar', type: 'Laundry' },
-    { id: 9, name: 'Deep Cleaning Service', vendor: 'Marta Assefa', vendorId: 4, price: 500, rating: 4.7, location: 'Mekelle', type: 'Cleaning' },
-    { id: 10, name: 'Makeup & Beauty', vendor: 'Bethlehem Tadesse', vendorId: 6, price: 350, rating: 4.9, location: 'Addis Ababa', type: 'Beauty' },
-    { id: 11, name: 'Tailoring Service', vendor: 'Sara Mulugeta', vendorId: 5, price: 400, rating: 4.8, location: 'Hawassa', type: 'Sewing' },
-    { id: 12, name: 'Nanny Service', vendor: 'Tigist Bekele', vendorId: 2, price: 250, rating: 4.9, location: 'Bahir Dar', type: 'Babysitting' }
+    { id: 1, name: 'Professional Laundry Service', vendor: 'Almaz Tesfaye', vendorId: 1, price: 150, rating: 4.8, location: 'Addis Ababa', type: 'Laundry', image: 'https://via.placeholder.com/300x200' },
+    { id: 2, name: 'Babysitting & Childcare', vendor: 'Tigist Bekele', vendorId: 2, price: 200, rating: 4.9, location: 'Bahir Dar', type: 'Babysitting', image: 'https://via.placeholder.com/300x200' },
+    { id: 3, name: 'Event Catering', vendor: 'Hanna Girma', vendorId: 3, price: 5000, rating: 4.7, location: 'Addis Ababa', type: 'Catering', image: 'https://via.placeholder.com/300x200' },
+    { id: 4, name: 'House Cleaning', vendor: 'Marta Assefa', vendorId: 4, price: 300, rating: 4.6, location: 'Mekelle', type: 'Cleaning', image: 'https://via.placeholder.com/300x200' },
+    { id: 5, name: 'Sewing & Alterations', vendor: 'Sara Mulugeta', vendorId: 5, price: 250, rating: 4.9, location: 'Hawassa', type: 'Sewing', image: 'https://via.placeholder.com/300x200' },
+    { id: 6, name: 'Hair Braiding', vendor: 'Bethlehem Tadesse', vendorId: 6, price: 180, rating: 4.8, location: 'Addis Ababa', type: 'Beauty', image: 'https://via.placeholder.com/300x200' },
+    { id: 7, name: 'Home Cooking Service', vendor: 'Almaz Tesfaye', vendorId: 1, price: 400, rating: 4.7, location: 'Addis Ababa', type: 'Catering', image: 'https://via.placeholder.com/300x200' },
+    { id: 8, name: 'Ironing Service', vendor: 'Tigist Bekele', vendorId: 2, price: 100, rating: 4.8, location: 'Bahir Dar', type: 'Laundry', image: 'https://via.placeholder.com/300x200' },
+    { id: 9, name: 'Deep Cleaning Service', vendor: 'Marta Assefa', vendorId: 4, price: 500, rating: 4.7, location: 'Mekelle', type: 'Cleaning', image: 'https://via.placeholder.com/300x200' },
+    { id: 10, name: 'Makeup & Beauty', vendor: 'Bethlehem Tadesse', vendorId: 6, price: 350, rating: 4.9, location: 'Addis Ababa', type: 'Beauty', image: 'https://via.placeholder.com/300x200' },
+    { id: 11, name: 'Tailoring Service', vendor: 'Sara Mulugeta', vendorId: 5, price: 400, rating: 4.8, location: 'Hawassa', type: 'Sewing', image: 'https://via.placeholder.com/300x200' },
+    { id: 12, name: 'Nanny Service', vendor: 'Tigist Bekele', vendorId: 2, price: 250, rating: 4.9, location: 'Bahir Dar', type: 'Babysitting', image: 'https://via.placeholder.com/300x200' }
   ];
 
   const serviceTypes = ['Laundry', 'Babysitting', 'Catering', 'Cleaning', 'Sewing', 'Beauty'];
@@ -97,9 +97,9 @@ const Services = () => {
             <p className="text-gray-400">Try searching with different keywords or change filters</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredServices.map(service => (
-              <ServiceCard key={service.id} service={service} />
+              <UnifiedCard key={service.id} item={service} type="service" />
             ))}
           </div>
         )}

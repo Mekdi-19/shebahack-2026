@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import OrderCard from '../components/OrderCard';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -84,16 +83,18 @@ const Dashboard = () => {
         {/* Tabs */}
         <div className="bg-white rounded-lg shadow-md mb-8">
           <div className="border-b">
-            <div className="flex space-x-8 px-6">
-              {['overview', 'products', 'services', 'orders'].map(tab => (
+            <div className="flex space-x-8 px-6 overflow-x-auto">
+              {['overview', 'products', 'services', 'orders', 'venture-opportunities', 'my-ventures'].map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 px-2 border-b-2 font-semibold capitalize transition ${
+                  className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${
                     activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-gray-600 hover:text-primary'
                   }`}
                 >
-                  {tab}
+                  {tab === 'venture-opportunities' ? 'Venture Opportunities' : 
+                   tab === 'my-ventures' ? 'My Ventures' : 
+                   tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
               ))}
             </div>
@@ -105,7 +106,23 @@ const Dashboard = () => {
                 <h2 className="text-2xl font-bold mb-4">Recent Orders</h2>
                 <div className="space-y-4">
                   {orders.slice(0, 3).map(order => (
-                    <OrderCard key={order.id} order={order} />
+                    <div key={order.id} className="bg-gray-50 rounded-lg p-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-semibold">{order.productName}</h3>
+                          <p className="text-sm text-gray-600">Customer: {order.customer}</p>
+                          <p className="text-sm text-gray-600">Quantity: {order.quantity}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-primary">{order.total} ETB</p>
+                          <span className={`inline-block mt-1 px-2 py-1 rounded-full text-xs ${
+                            order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
+                          }`}>
+                            {order.status}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -184,8 +201,57 @@ const Dashboard = () => {
                 <h2 className="text-2xl font-bold mb-4">All Orders</h2>
                 <div className="space-y-4">
                   {orders.map(order => (
-                    <OrderCard key={order.id} order={order} />
+                    <div key={order.id} className="bg-gray-50 rounded-lg p-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-semibold">{order.productName}</h3>
+                          <p className="text-sm text-gray-600">Customer: {order.customer}</p>
+                          <p className="text-sm text-gray-600">Quantity: {order.quantity}</p>
+                          <p className="text-sm text-gray-500">Date: {order.date}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-primary">{order.total} ETB</p>
+                          <span className={`inline-block mt-1 px-2 py-1 rounded-full text-xs ${
+                            order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
+                          }`}>
+                            {order.status}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'venture-opportunities' && (
+              <div>
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-4">🤝</div>
+                  <h2 className="text-2xl font-bold text-text mb-4">Venture Opportunities</h2>
+                  <p className="text-gray-600 mb-6">Collaborate with other vendors on large orders</p>
+                  <button
+                    onClick={() => navigate('/venture-opportunities')}
+                    className="bg-primary text-white px-8 py-3 rounded-lg hover:bg-opacity-90 transition font-semibold"
+                  >
+                    View All Opportunities
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'my-ventures' && (
+              <div>
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-4">🚀</div>
+                  <h2 className="text-2xl font-bold text-text mb-4">My Ventures</h2>
+                  <p className="text-gray-600 mb-6">Your active and completed venture collaborations</p>
+                  <button
+                    onClick={() => navigate('/my-ventures')}
+                    className="bg-secondary text-white px-8 py-3 rounded-lg hover:bg-opacity-90 transition font-semibold"
+                  >
+                    View My Ventures
+                  </button>
                 </div>
               </div>
             )}
